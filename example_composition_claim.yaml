@@ -1,0 +1,15 @@
+apiVersion: awsblueprints.io/v1alpha1
+kind: LinkedIngress
+metadata:
+  name: foorbar-app
+  namespace: django
+spec:
+  resourceConfig:
+    providerConfigName: default
+    region: ap-southeast-2
+    tags:
+      - key: foo
+        value: bar
+  hostedZoneId: Z1GM3OXH4ZPM65
+  zoneId: Z00626772CD7OE03KL3L0
+  fqdn: foobar.testingtesting123.com

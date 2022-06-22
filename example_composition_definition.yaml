@@ -1,0 +1,72 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xlinkedingress.awsblueprints.io
+spec:
+  group: awsblueprints.io
+  names:
+    kind: XLinkedIngress
+    plural: xlinkedingresses
+  claimNames:
+    kind: LinkedIngress
+    plural: linkedingresses
+  versions:
+    - name: v1alpha1
+      served: true
+      referenceable: true
+      schema:
+        openAPIV3Schema:
+          properties:
+            spec:
+              properties:
+                fqdn:
+                  type: string
+                hostedZoneId:
+                  type: string
+                zoneId:
+                  type: string
+                resourceConfig:
+                  description: ResourceConfig defines general properties of this AWS
+                    resource.
+                  properties:
+                    deletionPolicy:
+                      description: Defaults to Delete
+                      enum:
+                        - Delete
+                        - Orphan
+                      type: string
+                    name:
+                      description: Set the name of this resource in AWS to the value provided by this field.
+                      type: string
+                    namespace:
+                      description: The namespace where all the resources for this composition should live
+                      type: string
+                    providerConfigName:
+                      type: string
+                    region:
+                      description: The aws region to make resources in, eg ap-southeast-2
+                      type: string
+                    tags:
+                      items:
+                        properties:
+                          key:
+                            type: string
+                          value:
+                            type: string
+                        required:
+                          - key
+                          - value
+                        type: object
+                      type: array
+                  required:
+                    - providerConfigName
+                    - region
+                    - tags
+                  type: object
+              required:
+                - resourceConfig
+                - hostedZoneId
+                - zoneId
+                - fqdn
+              type: object
+          type: object

@@ -1,0 +1,125 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: linkedingress.awsblueprints.io
+spec:
+  compositeTypeRef:
+    apiVersion: awsblueprints.io/v1alpha1
+    kind: XLinkedIngress
+  patchSets:
+    - name: common-fields
+      patches:
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.resourceConfig.providerConfigName
+          toFieldPath: spec.providerConfigRef.name
+          policy:
+            mergeOptions:
+              appendSlice: true
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.resourceConfig.name
+          toFieldPath: metadata.annotations[crossplane.io/external-name]
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.resourceConfig.namespace
+          toFieldPath: metadata.namespace
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.resourceConfig.namespace
+          toFieldPath: spec.forProvider.manifest.metadata.namespace
+  resources:
+    - base:
+        apiVersion: kubernetes.crossplane.io/v1alpha1
+        kind: Object
+        metadata:
+          name: django-deployment
+        spec:
+          forProvider:
+            manifest:
+              apiVersion: apps/v1
+              kind: Deployment
+              metadata:
+                labels:
+                  app: django
+              spec:
+                replicas: 1
+                selector:
+                  matchLabels:
+                    app: django
+                template:
+                  metadata:
+                    labels:
+                      app: django
+                  spec:
+                    containers:
+                      - name: django
+                        image: strm/helloworld-http
+                        ports:
+                          - containerPort: 8000
+      patches:
+        - type: PatchSet
+          patchSetName: common-fields
+
+    - base:
+        apiVersion: kubernetes.crossplane.io/v1alpha1
+        kind: Object
+        metadata:
+          name: django-ingress
+        spec:
+          forProvider:
+            manifest:
+              apiVersion: networking.k8s.io/v1
+              kind: Ingress
+              metadata:
+                annotations:
+                  'alb.ingress.kubernetes.io/load-balancer-name': foobar
+                  'alb.ingress.kubernetes.io/scheme': internal
+                  'alb.ingress.kubernetes.io/target-type': ip
+                  'kubernetes.io/ingress.class': alb
+      patches:
+        - type: PatchSet
+          patchSetName: common-fields
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.resourceConfig.serviceName
+          toFieldPath: spec.forProvider.manifest.spec.defaultBackend.service.name
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.resourceConfig.servicePort
+          toFieldPath: spec.forProvider.manifest.spec.defaultBackend.service.port.number
+        - type: ToCompositeFieldPath
+          fromFieldPath: status.atProvider.manifest.status.loadBalancer.ingress.hostname
+          toFieldpath: compositeFields.ingress.hostname
+
+    - base:
+        apiVersion: kubernetes.crossplane.io/v1alpha1
+        kind: Object
+        metadata:
+          name: django-r53
+        spec:
+          references:
+            - patchesFrom:
+                apiVersion: kubernetes.crossplane.io/v1alpha1
+                kind: Ingress
+                name: django
+                namespace: django
+                fieldPath: status.loadBalancer.ingress.hostname
+              toFieldPath: spec.forProvider.dnsName
+          forProvider:
+            manifest:
+              apiVersion: route53.aws.crossplane.io/v1alpha1
+              kind: ResourceRecordSet
+              metadata:
+                name: foobar.testingtesting123.com
+              spec:
+                forProvider:
+                  aliasTarget:
+                    evaluateTargetHealth: false
+                  type: A
+      patches:
+        - type: PatchSet
+          patchSetName: common-fields
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.resourceConfig.hostedZoneId
+          toFieldPath: spec.forProvider.manifest.spec.forProvider.aliasTarget.hostedZoneId
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.resourceConfig.zoneId
+          toFieldPath: spec.forProvider.manifest.spec.forProvider.zoneId
+        - type: FromCompositeFieldPath
+          fromFieldPath: compositeFields.ingress.hostname
+          toFieldPath: spec.forProvider.manifest.spec.forProvider.aliasTarget.dnsName
