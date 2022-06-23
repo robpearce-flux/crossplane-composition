@@ -1,0 +1,50 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: django
+  labels:
+    foo: "bar"
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: django
+  name: django
+  labels:
+    app: django
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: django
+  template:
+    metadata:
+      labels:
+        app: django
+    spec:
+      containers:
+        - name: django
+          image: strm/helloworld-http
+          ports:
+            - containerPort: 8000
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: django
+  namespace: django
+spec:
+  selector:
+    app: django
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8000
+
+
+
+
+

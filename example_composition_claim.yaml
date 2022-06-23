@@ -6,7 +6,6 @@ metadata:
 spec:
   resourceConfig:
     providerConfigName: default
-    region: ap-southeast-2
     tags:
       - key: foo
         value: bar

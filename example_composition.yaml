@@ -29,38 +29,6 @@ spec:
         apiVersion: kubernetes.crossplane.io/v1alpha1
         kind: Object
         metadata:
-          name: django-deployment
-        spec:
-          forProvider:
-            manifest:
-              apiVersion: apps/v1
-              kind: Deployment
-              metadata:
-                labels:
-                  app: django
-              spec:
-                replicas: 1
-                selector:
-                  matchLabels:
-                    app: django
-                template:
-                  metadata:
-                    labels:
-                      app: django
-                  spec:
-                    containers:
-                      - name: django
-                        image: strm/helloworld-http
-                        ports:
-                          - containerPort: 8000
-      patches:
-        - type: PatchSet
-          patchSetName: common-fields
-
-    - base:
-        apiVersion: kubernetes.crossplane.io/v1alpha1
-        kind: Object
-        metadata:
           name: django-ingress
         spec:
           forProvider:
@@ -84,13 +52,13 @@ spec:
           toFieldPath: spec.forProvider.manifest.spec.defaultBackend.service.port.number
         - type: ToCompositeFieldPath
           fromFieldPath: status.atProvider.manifest.status.loadBalancer.ingress.hostname
-          toFieldpath: compositeFields.ingress.hostname
+          toFieldPath: metadata.annotations.ingress.hostname
 
     - base:
-        apiVersion: kubernetes.crossplane.io/v1alpha1
-        kind: Object
+        apiVersion: route53.aws.crossplane.io/v1alpha1
+        kind: ResourceRecordSet
         metadata:
-          name: django-r53
+          name: foobar.testingtesting123.com
         spec:
           references:
             - patchesFrom:
@@ -101,25 +69,18 @@ spec:
                 fieldPath: status.loadBalancer.ingress.hostname
               toFieldPath: spec.forProvider.dnsName
           forProvider:
-            manifest:
-              apiVersion: route53.aws.crossplane.io/v1alpha1
-              kind: ResourceRecordSet
-              metadata:
-                name: foobar.testingtesting123.com
-              spec:
-                forProvider:
-                  aliasTarget:
-                    evaluateTargetHealth: false
-                  type: A
+            aliasTarget:
+              evaluateTargetHealth: false
+            type: A
       patches:
         - type: PatchSet
           patchSetName: common-fields
         - type: FromCompositeFieldPath
           fromFieldPath: spec.resourceConfig.hostedZoneId
-          toFieldPath: spec.forProvider.manifest.spec.forProvider.aliasTarget.hostedZoneId
+          toFieldPath: spec.forProvider.aliasTarget.hostedZoneId
         - type: FromCompositeFieldPath
           fromFieldPath: spec.resourceConfig.zoneId
           toFieldPath: spec.forProvider.manifest.spec.forProvider.zoneId
         - type: FromCompositeFieldPath
-          fromFieldPath: compositeFields.ingress.hostname
-          toFieldPath: spec.forProvider.manifest.spec.forProvider.aliasTarget.dnsName
+          fromFieldPath: metadata.annotations.ingress.hostname
+          toFieldPath: spec.forProvider.aliasTarget.dnsName
