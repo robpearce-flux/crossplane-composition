@@ -49,18 +49,14 @@ spec:
                   service:
                     name: XXX
                     port:
-                      number: XXX
+                      number: 80
       patches:
         - type: PatchSet
           patchSetName: common-fields
 
         - type: FromCompositeFieldPath
-          fromFieldPath: spec.resourceConfig.serviceName
+          fromFieldPath: serviceName
           toFieldPath: spec.forProvider.manifest.spec.defaultBackend.service.name
-
-        - type: FromCompositeFieldPath
-          fromFieldPath: spec.resourceConfig.servicePort
-          toFieldPath: spec.forProvider.manifest.spec.defaultBackend.service.port.number
 
         - type: ToCompositeFieldPath
           fromFieldPath: status.atProvider.manifest.status.loadBalancer.ingress.hostname
