@@ -47,9 +47,9 @@ spec:
               spec:
                 defaultBackend:
                   service:
-                    name: XX
+                    name: XXX
                     port:
-                      number: XX
+                      number: XXX
       patches:
         - type: PatchSet
           patchSetName: common-fields
@@ -71,12 +71,15 @@ spec:
         apiVersion: route53.aws.crossplane.io/v1alpha1
         kind: ResourceRecordSet
         metadata:
-          name: foobar.testingtesting123.com
+          name: XXX
         spec:
           forProvider:
             aliasTarget:
               evaluateTargetHealth: false
+              hostedZoneId: XXX
+              dnsName: XXX
             type: A
+            zoneId: XXX
       patches:
         - type: PatchSet
           patchSetName: common-fields
