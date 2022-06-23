@@ -1,7 +1,7 @@
 apiVersion: apiextensions.crossplane.io/v1
 kind: Composition
 metadata:
-  name: linkedingress.awsblueprints.io
+  name: linkedingress
 spec:
   compositeTypeRef:
     apiVersion: awsblueprints.io/v1alpha1
@@ -15,12 +15,15 @@ spec:
           policy:
             mergeOptions:
               appendSlice: true
+
         - type: FromCompositeFieldPath
           fromFieldPath: spec.resourceConfig.name
           toFieldPath: metadata.annotations[crossplane.io/external-name]
+
         - type: FromCompositeFieldPath
           fromFieldPath: spec.resourceConfig.namespace
           toFieldPath: metadata.namespace
+
         - type: FromCompositeFieldPath
           fromFieldPath: spec.resourceConfig.namespace
           toFieldPath: spec.forProvider.manifest.metadata.namespace
@@ -41,18 +44,28 @@ spec:
                   'alb.ingress.kubernetes.io/scheme': internal
                   'alb.ingress.kubernetes.io/target-type': ip
                   'kubernetes.io/ingress.class': alb
+              spec:
+                defaultBackend:
+                  service:
+                    name: XX
+                    port:
+                      number: XX
       patches:
         - type: PatchSet
           patchSetName: common-fields
+
         - type: FromCompositeFieldPath
           fromFieldPath: spec.resourceConfig.serviceName
           toFieldPath: spec.forProvider.manifest.spec.defaultBackend.service.name
+
         - type: FromCompositeFieldPath
           fromFieldPath: spec.resourceConfig.servicePort
           toFieldPath: spec.forProvider.manifest.spec.defaultBackend.service.port.number
+
         - type: ToCompositeFieldPath
           fromFieldPath: status.atProvider.manifest.status.loadBalancer.ingress.hostname
-          toFieldPath: metadata.annotations.ingress.hostname
+          toFieldPath: metadata.annotations.ingressHostname
+
 
     - base:
         apiVersion: route53.aws.crossplane.io/v1alpha1
@@ -60,14 +73,6 @@ spec:
         metadata:
           name: foobar.testingtesting123.com
         spec:
-          references:
-            - patchesFrom:
-                apiVersion: kubernetes.crossplane.io/v1alpha1
-                kind: Ingress
-                name: django
-                namespace: django
-                fieldPath: status.loadBalancer.ingress.hostname
-              toFieldPath: spec.forProvider.dnsName
           forProvider:
             aliasTarget:
               evaluateTargetHealth: false
@@ -75,12 +80,19 @@ spec:
       patches:
         - type: PatchSet
           patchSetName: common-fields
+
         - type: FromCompositeFieldPath
           fromFieldPath: spec.resourceConfig.hostedZoneId
           toFieldPath: spec.forProvider.aliasTarget.hostedZoneId
+
         - type: FromCompositeFieldPath
           fromFieldPath: spec.resourceConfig.zoneId
-          toFieldPath: spec.forProvider.manifest.spec.forProvider.zoneId
+          toFieldPath: spec.forProvider.zoneId
+
         - type: FromCompositeFieldPath
           fromFieldPath: metadata.annotations.ingress.hostname
           toFieldPath: spec.forProvider.aliasTarget.dnsName
+
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.properties.fqdn
+          toFieldPath: metadata.name
