@@ -16,8 +16,10 @@ spec:
       referenceable: true
       schema:
         openAPIV3Schema:
+          type: object
           properties:
             spec:
+              type: object
               properties:
                 fqdn:
                   type: string
@@ -40,6 +42,9 @@ spec:
                       type: string
                     namespace:
                       description: The namespace where all the resources for this composition should live
+                      type: string
+                    serviceName:
+                      description: Name of the service to link the ingress to (in same namespace)
                       type: string
                     providerConfigName:
                       type: string
@@ -64,5 +69,3 @@ spec:
                 - hostedZoneId
                 - zoneId
                 - fqdn
-              type: object
-          type: object
