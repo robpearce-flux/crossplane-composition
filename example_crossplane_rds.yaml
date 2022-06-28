@@ -1,0 +1,21 @@
+---
+apiVersion: database.aws.crossplane.io/v1beta1
+kind: RDSInstance
+metadata:
+  namespace: namespace1
+  name: rdsmysqlfromappcode
+spec:
+  forProvider:
+    region: ap-southeast-2
+    dbInstanceClass: db.t3.micro
+    masterUsername: masteruser
+    allocatedStorage: 20
+    engine: mysql
+    engineVersion: "5.7.34"
+    skipFinalSnapshotBeforeDeletion: true
+  providerConfigRef:
+    name: default
+  writeConnectionSecretToRef:
+    namespace: namespace1
+    name: aws-rdsmysql-conn
+

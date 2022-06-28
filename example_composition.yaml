@@ -72,32 +72,32 @@ spec:
         apiVersion: route53.aws.crossplane.io/v1alpha1
         kind: ResourceRecordSet
         metadata:
-          name: XXX
+          name: to-be-patched
           namespace: django
         spec:
           forProvider:
             aliasTarget:
               evaluateTargetHealth: false
-              hostedZoneId: XXX
-              dnsName: XXX
+              hostedZoneId: to-be-patched
+              dnsName: to-be-patched
             type: A
-            zoneId: XXX
+            zoneId: to-be-patched
       patches:
       - type: PatchSet
         patchSetName: common-fields
 
       - type: FromCompositeFieldPath
-        fromFieldPath: spec.resourceConfig.hostedZoneId
+        fromFieldPath: spec.hostedZoneId
         toFieldPath: spec.forProvider.aliasTarget.hostedZoneId
 
       - type: FromCompositeFieldPath
-        fromFieldPath: spec.resourceConfig.zoneId
+        fromFieldPath: spec.zoneId
         toFieldPath: spec.forProvider.zoneId
 
-#        - type: FromCompositeFieldPath
-#          fromFieldPath: metadata.annotations.ingress.hostname
-#          toFieldPath: spec.forProvider.aliasTarget.dnsName
-#
       - type: FromCompositeFieldPath
         fromFieldPath: spec.fqdn
         toFieldPath: metadata.name
+
+      - type: FromCompositeFieldPath
+        fromFieldPath: metadata.annotations.ingressHostname
+        toFieldPath: spec.forProvider.aliasTarget.dnsName
