@@ -1,3 +1,4 @@
+# Just an example of making an RDS instance for reference so i dont lost it, nothing to do with composition per se.
 ---
 apiVersion: database.aws.crossplane.io/v1beta1
 kind: RDSInstance
