@@ -5,10 +5,8 @@ metadata:
   namespace: django
 spec:
   resourceConfig:
+    name: django
     providerConfigName: default
-    tags:
-      - key: foo
-        value: bar
   hostedZoneId: Z1GM3OXH4ZPM65
   zoneId: Z00626772CD7OE03KL3L0
   fqdn: foobar.testingtesting123.com

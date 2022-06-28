@@ -21,11 +21,11 @@ spec:
           toFieldPath: metadata.annotations[crossplane.io/external-name]
 
         - type: FromCompositeFieldPath
-          fromFieldPath: spec.resourceConfig.namespace
+          fromFieldPath: spec.serviceName
           toFieldPath: metadata.namespace
 
         - type: FromCompositeFieldPath
-          fromFieldPath: spec.resourceConfig.namespace
+          fromFieldPath: spec.serviceName
           toFieldPath: spec.forProvider.manifest.metadata.namespace
   resources:
     - base:
@@ -33,6 +33,7 @@ spec:
         kind: Object
         metadata:
           name: django-ingress
+          namespace: to-be-patched
         spec:
           forProvider:
             manifest:
@@ -47,7 +48,7 @@ spec:
               spec:
                 defaultBackend:
                   service:
-                    name: XXX
+                    name: to-be-patched
                     port:
                       number: 80
       patches:
@@ -55,12 +56,16 @@ spec:
           patchSetName: common-fields
 
         - type: FromCompositeFieldPath
-          fromFieldPath: serviceName
+          fromFieldPath: spec.serviceName
           toFieldPath: spec.forProvider.manifest.spec.defaultBackend.service.name
+          policy:
+            fromFieldPath: Required
 
         - type: ToCompositeFieldPath
-          fromFieldPath: status.atProvider.manifest.status.loadBalancer.ingress.hostname
+          fromFieldPath: status.atProvider.manifest.status.loadBalancer.ingress[0].hostname
           toFieldPath: metadata.annotations.ingressHostname
+          policy:
+            fromFieldPath: Required
 
 
     - base:
@@ -68,6 +73,7 @@ spec:
         kind: ResourceRecordSet
         metadata:
           name: XXX
+          namespace: django
         spec:
           forProvider:
             aliasTarget:
@@ -77,21 +83,21 @@ spec:
             type: A
             zoneId: XXX
       patches:
-        - type: PatchSet
-          patchSetName: common-fields
+      - type: PatchSet
+        patchSetName: common-fields
 
-        - type: FromCompositeFieldPath
-          fromFieldPath: spec.resourceConfig.hostedZoneId
-          toFieldPath: spec.forProvider.aliasTarget.hostedZoneId
+      - type: FromCompositeFieldPath
+        fromFieldPath: spec.resourceConfig.hostedZoneId
+        toFieldPath: spec.forProvider.aliasTarget.hostedZoneId
 
-        - type: FromCompositeFieldPath
-          fromFieldPath: spec.resourceConfig.zoneId
-          toFieldPath: spec.forProvider.zoneId
+      - type: FromCompositeFieldPath
+        fromFieldPath: spec.resourceConfig.zoneId
+        toFieldPath: spec.forProvider.zoneId
 
-        - type: FromCompositeFieldPath
-          fromFieldPath: metadata.annotations.ingress.hostname
-          toFieldPath: spec.forProvider.aliasTarget.dnsName
-
-        - type: FromCompositeFieldPath
-          fromFieldPath: spec.properties.fqdn
-          toFieldPath: metadata.name
+#        - type: FromCompositeFieldPath
+#          fromFieldPath: metadata.annotations.ingress.hostname
+#          toFieldPath: spec.forProvider.aliasTarget.dnsName
+#
+      - type: FromCompositeFieldPath
+        fromFieldPath: spec.fqdn
+        toFieldPath: metadata.name

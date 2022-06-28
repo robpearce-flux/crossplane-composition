@@ -1,7 +1,7 @@
 apiVersion: apiextensions.crossplane.io/v1
 kind: CompositeResourceDefinition
 metadata:
-  name: xlinkedingress.awsblueprints.io
+  name: xlinkedingresses.awsblueprints.io
 spec:
   group: awsblueprints.io
   names:
@@ -16,23 +16,11 @@ spec:
       referenceable: true
       schema:
         openAPIV3Schema:
-          type: object
           properties:
             spec:
-              type: object
               properties:
-                fqdn:
-                  type: string
-                hostedZoneId:
-                  type: string
-                zoneId:
-                  type: string
-                serviceName:
-                  description: Name of the service to link the ingress to (in same namespace)
-                  type: string
                 resourceConfig:
-                  description: ResourceConfig defines general properties of this AWS
-                    resource.
+                  type: object
                   properties:
                     deletionPolicy:
                       description: Defaults to Delete
@@ -43,29 +31,23 @@ spec:
                     name:
                       description: Set the name of this resource in AWS to the value provided by this field.
                       type: string
-                    namespace:
-                      description: The namespace where all the resources for this composition should live
-                      type: string
                     providerConfigName:
                       type: string
-                    tags:
-                      items:
-                        properties:
-                          key:
-                            type: string
-                          value:
-                            type: string
-                        required:
-                          - key
-                          - value
-                        type: object
-                      type: array
                   required:
                     - providerConfigName
-                    - tags
-                  type: object
+                fqdn:
+                  type: string
+                hostedZoneId:
+                  type: string
+                zoneId:
+                  type: string
+                serviceName:
+                  type: string
+              type: object
               required:
                 - resourceConfig
+                - fqdn
                 - hostedZoneId
                 - zoneId
-                - fqdn
+                - serviceName
+
