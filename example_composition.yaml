@@ -86,6 +86,11 @@ spec:
       - type: PatchSet
         patchSetName: common-fields
 
+      # This toFieldPath is in the common-fields patchset but R53 resource external-name needs to satisfy the RRset requirements of R53
+      - type: FromCompositeFieldPath
+        fromFieldPath: spec.fqdn
+        toFieldPath: metadata.annotations[crossplane.io/external-name]
+
       - type: FromCompositeFieldPath
         fromFieldPath: spec.hostedZoneId
         toFieldPath: spec.forProvider.aliasTarget.hostedZoneId
